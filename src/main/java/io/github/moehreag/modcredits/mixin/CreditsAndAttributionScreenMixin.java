@@ -13,9 +13,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(CreditsAndAttributionScreen.class)
-public class CreditsAndAttributionScreenMixin extends Screen {
+public abstract class CreditsAndAttributionScreenMixin extends Screen {
 
-	protected CreditsAndAttributionScreenMixin(Component title) {
+	private CreditsAndAttributionScreenMixin(Component title) {
 		super(title);
 	}
 

@@ -10,7 +10,7 @@ val loader = "0.16.10"
 val minecraft = "1.21.4"
 val fabric = "0.117.0+1.21.4"
 val parchment = "2025.02.16"
-val modmenu = ""
+val modmenu = "13.0.2"
 
 base {
 	archivesName = "modid"
@@ -44,7 +44,7 @@ dependencies {
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	modImplementation("net.fabricmc.fabric-api:fabric-api:${fabric}")
 
-	modImplementation("com.terraformersmc:modmenu:13.0.2")
+	modCompileOnly("com.terraformersmc:modmenu:$modmenu")
 }
 
 tasks.processResources {

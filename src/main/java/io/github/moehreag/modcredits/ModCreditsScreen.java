@@ -5,17 +5,26 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.logging.LogUtils;
+import io.github.moehreag.modcredits.entries.Entry;
+import io.github.moehreag.modcredits.entries.ModEntry;
+import io.github.moehreag.modcredits.entries.TextEntry;
+import io.github.moehreag.modcredits.entries.TitleEntry;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.ModContainer;
+import net.fabricmc.loader.api.entrypoint.EntrypointContainer;
+import net.fabricmc.loader.api.metadata.CustomValue;
 import net.fabricmc.loader.api.metadata.Person;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.GameNarrator;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.RenderType;
@@ -32,7 +41,6 @@ public class ModCreditsScreen extends Screen {
 	private static final ResourceLocation VIGNETTE_LOCATION = ResourceLocation.withDefaultNamespace("textures/misc/credits_vignette.png");
 	private static final Logger LOGGER = LogUtils.getLogger();
 	private static final Component SECTION_HEADING = Component.literal("============").withStyle(ChatFormatting.WHITE);
-	private static final String NAME_PREFIX = "           ";
 	private static final String OBFUSCATE_TOKEN = "" + ChatFormatting.WHITE + ChatFormatting.OBFUSCATED + ChatFormatting.GREEN + ChatFormatting.AQUA;
 	private static final float SPEEDUP_FACTOR = 5.0F;
 	private static final float SPEEDUP_FACTOR_FAST = 15.0F;
@@ -191,42 +199,29 @@ public class ModCreditsScreen extends Screen {
 		}
 	}
 
-	private FormattedCharSequence emptyLine() {
-		return FormattedCharSequence.EMPTY;
-	}
-
 	private void addCredits() {
 		addEntry(new TitleEntry(List.of(SECTION_HEADING.getVisualOrderText(),
 				Component.translatable("mods_section_header").withStyle(ChatFormatting.YELLOW).getVisualOrderText(),
 				SECTION_HEADING.getVisualOrderText(),
-				emptyLine(),
-				emptyLine()
+				FormattedCharSequence.EMPTY,
+				FormattedCharSequence.EMPTY
 		)));
 
-		List<String> idBlackList = List.of("minecraft", "java", "fabric-loader");
-		final boolean[] rightText = {false};
-		FabricLoader.getInstance().getAllMods().stream()
-				.filter(m -> m.getContainingMod().isEmpty()).filter(m -> {
-					String id = m.getMetadata().getId();
-					return !idBlackList.contains(id);
-				}).sorted(Comparator.comparing(s -> s.getMetadata().getName())).forEach(mod -> {
-					addEntry(createModEntry(mod, rightText[0]));
-					rightText[0] = !rightText[0];
-				});
+		getModEntries();
 	}
 
 	private void addEntry(Entry e) {
 		entries.add(e);
 	}
 
-	private ResourceLocation getModIcon(ModContainer container) {
+	private static ResourceLocation getModIcon(ModContainer container) {
 		var opt = container.getMetadata().getIconPath(16);
 		if (opt.isPresent()) {
 			String icon = opt.get();
-			try (var in = this.getClass().getResourceAsStream("/" + icon)) {
+			try (var in = ModCreditsScreen.class.getResourceAsStream("/" + icon)) {
 				if (in != null) {
 					var rl = ModCreditsMod.id("mod_icon_" + container.getMetadata().getId());
-					minecraft.getTextureManager().register(rl, new DynamicTexture(NativeImage.read(in)));
+					Minecraft.getInstance().getTextureManager().register(rl, new DynamicTexture(NativeImage.read(in)));
 					return rl;
 				}
 			} catch (IOException e) {
@@ -238,7 +233,15 @@ public class ModCreditsScreen extends Screen {
 
 	private static void addPeople(Collection<Person> people, List<ModEntry.Line> lines) {
 		people.forEach(p ->
-				lines.add(new ModEntry.Line(Component.literal(p.getName()).withStyle(ChatFormatting.WHITE).getVisualOrderText(), 44)));
+				lines.add(new ModEntry.Line(Component.literal(p.getName()).withStyle(ChatFormatting.WHITE), 44)));
+	}
+
+	@Override
+	public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+		if (direction == 0 && scroll < totalScrollLength) { // paused
+			scroll -= Math.signum(scrollY)*12;
+		}
+		return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
 	}
 
 	@Override
@@ -249,21 +252,21 @@ public class ModCreditsScreen extends Screen {
 		double shift = -this.scroll;
 		guiGraphics.pose().pushPose();
 		guiGraphics.pose().translate(0.0F, shift, 0.0F);
-		int currentY = this.height;// + 50;
+		int currentY = this.height*4/5;
 
 		for (int l = 0; l < this.entries.size(); l++) {
 			var entry = entries.get(l);
 
 			int entryHeight = entry.getHeight();
 			if (l == this.entries.size() - 1) {
-				double g = (float) currentY + shift - (float) (this.height / 2 - entryHeight / 2);
+				double g = currentY + shift - (this.height / 2f - entryHeight / 2f);
 				if (g < 0.0F) {
 					guiGraphics.pose().translate(0.0F, -g, 0.0F);
 				}
 			}
 
-			if ((float) currentY + shift + entryHeight + 8.0F > 0.0F && (float) currentY + shift < (float) this.height) {
-				currentY = entry.render(guiGraphics, currentY);
+			if (currentY + shift + entryHeight + 8.0F > 0.0 && currentY + shift < this.height) {
+				currentY = entry.render(this, guiGraphics, currentY);
 			} else {
 				currentY += entryHeight;
 			}
@@ -273,70 +276,76 @@ public class ModCreditsScreen extends Screen {
 		guiGraphics.pose().popPose();
 	}
 
-	private interface Entry extends AutoCloseable {
-		int render(GuiGraphics guiGraphics, int y);
-
-		int getHeight();
-
-		@Override
-		default void close() {
-		}
+	private void getModEntries() {
+		List<String> idBlackList = List.of("minecraft", "java", "fabric-loader");
+		final boolean[] rightText = {false};
+		var entrypoints = FabricLoader.getInstance().getEntrypointContainers("moehreag-modcredits", ModCreditsApi.class)
+				.stream().collect(Collectors.toMap(c -> c.getProvider().getMetadata().getId(), EntrypointContainer::getEntrypoint));
+		FabricLoader.getInstance().getAllMods().stream()
+				.filter(m -> m.getContainingMod().isEmpty()).filter(m -> {
+					String id = m.getMetadata().getId();
+					return !idBlackList.contains(id);
+				}).sorted(Comparator.comparing(s -> s.getMetadata().getName())).forEach(mod -> {
+					if (entrypoints.containsKey(mod.getMetadata().getId())) {
+						addEntry(entrypoints.get(mod.getMetadata().getId()).createEntry(mod, rightText[0]));
+					} else {
+						addEntry(createModEntry(mod, rightText[0]));
+					}
+					rightText[0] = !rightText[0];
+				});
 	}
 
-	private class TitleEntry implements Entry {
-		private final List<FormattedCharSequence> lines;
-
-		private TitleEntry(List<FormattedCharSequence> lines) {
-			this.lines = lines;
-		}
-
-		@Override
-		public int render(GuiGraphics guiGraphics, int y) {
-			for (FormattedCharSequence line : lines) {
-				guiGraphics.drawCenteredString(font, line, width / 2, y, -1);
-				y += 12;
+	private static void readCustomFMJProperty(List<ModEntry.Line> lines, ModContainer mod, String property, Function<String, Component> lineFunction) {
+		if (mod.getMetadata().containsCustomValue(property)) {
+			var custom = mod.getMetadata().getCustomValue(property);
+			boolean[] modified = {false};
+			if (custom.getType() == CustomValue.CvType.OBJECT) {
+				var customObj = custom.getAsObject();
+				customObj.forEach(e -> {
+					modified[0] = true;
+					addLine(lines, lineFunction.apply(e.getKey()));
+					var val = e.getValue();
+					if (val.getType() == CustomValue.CvType.ARRAY) {
+						val.getAsArray().forEach(v -> addLine(lines, lineFunction.apply(v.getAsString()), 44));
+					} else if (val.getType() == CustomValue.CvType.STRING) {
+						addLine(lines, lineFunction.apply(val.getAsString()), 44);
+					}
+				});
+			} else if (custom.getType() == CustomValue.CvType.STRING) {
+				addLine(lines, lineFunction.apply(custom.getAsString()));
+			} else if (custom.getType() == CustomValue.CvType.ARRAY) {
+				custom.getAsArray().forEach(v -> addLine(lines, lineFunction.apply(v.getAsString())));
 			}
-			return y;
-		}
-
-		@Override
-		public int getHeight() {
-			return lines.size() * 12;
-		}
-	}
-
-	private class TextEntry implements Entry {
-		private final List<FormattedCharSequence> lines;
-
-		private TextEntry(List<FormattedCharSequence> lines) {
-			this.lines = lines;
-		}
-
-		@Override
-		public int render(GuiGraphics guiGraphics, int y) {
-			for (FormattedCharSequence line : lines) {
-				guiGraphics.drawString(font, line, width / 2 - 128, y, -1);
-				y += 12;
+			if (modified[0]) {
+				lines.add(ModEntry.Line.EMPTY_LINE);
+				lines.add(ModEntry.Line.EMPTY_LINE);
 			}
-			return y;
-		}
-
-		@Override
-		public int getHeight() {
-			return lines.size() * 12;
 		}
 	}
 
-	private ModEntry createModEntry(ModContainer mod, boolean rightText) {
+	private static void addLine(List<ModEntry.Line> lines, Component component) {
+		addLine(lines, component, 0);
+	}
+
+	private static void addLine(List<ModEntry.Line> lines, Component c, int offset) {
+		Minecraft.getInstance().font.split(c, 256).stream()
+				.map(ch -> new ModEntry.Line(ch, offset))
+				.forEach(lines::add);
+	}
+
+	static Entry createModEntry(ModContainer mod, boolean rightText) {
 		List<ModEntry.Line> entryLines = new ArrayList<>();
 		entryLines.add(ModEntry.Line.EMPTY_LINE);
 		entryLines.add(ModEntry.Line.EMPTY_LINE);
 
+		readCustomFMJProperty(entryLines, mod, "moehreag-modcredits:description", Component::literal);
+		readCustomFMJProperty(entryLines, mod, "moehreag-modcredits:description-keys", Component::translatable);
+
 		if (!mod.getMetadata().getAuthors().isEmpty()) {
 			if (mod.getMetadata().getAuthors().size() > 1) {
-				entryLines.add(new ModEntry.Line(MODS_AUTHORS_HEADER.withStyle(ChatFormatting.GRAY).getVisualOrderText()));
+				addLine(entryLines, MODS_AUTHORS_HEADER.withStyle(ChatFormatting.GRAY));
 			} else {
-				entryLines.add(new ModEntry.Line(MODS_AUTHOR_HEADER.withStyle(ChatFormatting.GRAY).getVisualOrderText()));
+				addLine(entryLines, MODS_AUTHOR_HEADER.withStyle(ChatFormatting.GRAY));
 			}
 			addPeople(mod.getMetadata().getAuthors(), entryLines);
 			entryLines.add(ModEntry.Line.EMPTY_LINE);
@@ -345,9 +354,9 @@ public class ModCreditsScreen extends Screen {
 
 		if (!mod.getMetadata().getContributors().isEmpty()) {
 			if (mod.getMetadata().getContributors().size() > 1) {
-				entryLines.add(new ModEntry.Line(MODS_CONTRIBUTORS_HEADER.withStyle(ChatFormatting.GRAY).getVisualOrderText()));
+				addLine(entryLines, MODS_CONTRIBUTORS_HEADER.withStyle(ChatFormatting.GRAY));
 			} else {
-				entryLines.add(new ModEntry.Line(MODS_CONTRIBUTOR_HEADER.withStyle(ChatFormatting.GRAY).getVisualOrderText()));
+				addLine(entryLines, MODS_CONTRIBUTOR_HEADER.withStyle(ChatFormatting.GRAY));
 			}
 			addPeople(mod.getMetadata().getContributors(), entryLines);
 			entryLines.add(ModEntry.Line.EMPTY_LINE);
@@ -356,56 +365,5 @@ public class ModCreditsScreen extends Screen {
 
 		return new ModEntry(Component.literal(mod.getMetadata().getName()).withStyle(ChatFormatting.YELLOW),
 				entryLines, getModIcon(mod), rightText);
-	}
-
-	private class ModEntry implements Entry {
-		private final Component title;
-		private final List<Line> lines;
-		private final ResourceLocation icon;
-		private final boolean rightText;
-		private final int maxLineWidth;
-
-		private ModEntry(Component title, List<Line> lines, ResourceLocation icon, boolean rightText) {
-			this.title = title;
-			this.lines = lines;
-			this.icon = icon;
-			this.rightText = rightText;
-			this.maxLineWidth = lines.stream().map(Line::text).mapToInt(font::width).max().orElse(0);
-		}
-
-		@Override
-		public int render(GuiGraphics guiGraphics, int y) {
-			int iconSize = font.lineHeight * 5;
-			guiGraphics.drawCenteredString(font, title, width / 2, y, -1);
-			y += 12;
-			if (icon != null) {
-				guiGraphics.blit(RenderType::guiTextured, icon, rightText ? width / 2 - 128 : width / 2 + 128 - iconSize, y + 12, 0, 0, iconSize, iconSize, iconSize, iconSize);
-			}
-			for (Line line : lines) {
-				guiGraphics.drawString(font, line.text(), rightText ? width / 2 + 128 - maxLineWidth - iconSize + line.offset() : width / 2 - 128 + line.offset(), y, -1);
-				y += 12;
-			}
-			return y;
-		}
-
-		@Override
-		public int getHeight() {
-			return lines.size() * 12 + 12;
-		}
-
-		@Override
-		public void close() {
-			if (icon != null) {
-				minecraft.getTextureManager().release(icon);
-			}
-		}
-
-		public record Line(FormattedCharSequence text, int offset) {
-			public Line(FormattedCharSequence text) {
-				this(text, 0);
-			}
-
-			public static final Line EMPTY_LINE = new Line(FormattedCharSequence.EMPTY, 0);
-		}
 	}
 }

@@ -11,7 +11,7 @@
 		"homepage": "https://modrinth.com/mod/moehreag-modcredits",
 		"sources": "https://github.com/moehreag/modcredits"
 	},
-	"license": "",
+	"license": "LGPL-3.0-or-later",
 	"icon": "assets/moehreag-modcredits/icon.png",
 	"environment": "client",
 	"entrypoints": {
