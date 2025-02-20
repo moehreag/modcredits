@@ -1,6 +1,10 @@
 # Mod Credits screen
 
-> With poem!
+> With custom poem!
+ 
+This mod adds a screen in the style of the vanilla credits/win screen, but for the
+currently installed mods and with expanded functionality as well as a small custom poem.
+
 
 ### Customization options (for mod devs)
 
@@ -33,7 +37,7 @@ Example (using translation keys):
 </details>
 
 <details>
-<summary>Custom Entrypoint (more powerful, but also more manual work)</summary>
+<summary>Custom Entrypoint (more powerful, but also more manual work and likely to break with version updates)</summary>
 
 ```json5
 {
@@ -64,4 +68,48 @@ public class ModCreditsImpl implements ModCreditsApi {
 }
 ```
 
+</details>
+
+### Maven coordinates
+
+This mod can be found on https://moehreag.duckdns.org/maven. Alternatively, the modrinth maven can be used.
+
+<details>
+<summary>
+build.gradle.kts
+</summary>
+
+```kotlin
+
+repositories {
+    maven("https://moehreag.duckdns.org/maven/releases")
+}
+
+dependencies {
+    
+    modImplementation("io.github.moehreag:modcredits:$VERSION")
+}
+
+
+```
+</details>
+
+<details>
+<summary>
+build.gradle
+</summary>
+
+```groovy
+
+repositories {
+    maven { url = "https://moehreag.duckdns.org/maven/releases" }
+}
+
+dependencies {
+    
+    modImplementation("io.github.moehreag:modcredits:$VERSION")
+}
+
+
+```
 </details>

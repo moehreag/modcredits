@@ -214,7 +214,7 @@ public class ModCreditsScreen extends Screen {
 		entries.add(e);
 	}
 
-	private static ResourceLocation getModIcon(ModContainer container) {
+	static ResourceLocation getModIcon(ModContainer container) {
 		var opt = container.getMetadata().getIconPath(16);
 		if (opt.isPresent()) {
 			String icon = opt.get();

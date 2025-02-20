@@ -1,94 +1,109 @@
 plugins {
-	id("fabric-loom") version "1.10-SNAPSHOT"
-	id("maven-publish")
-	id("io.freefair.lombok") version "8.12"
+    id("fabric-loom") version "1.10-SNAPSHOT"
+    id("maven-publish")
+    id("io.freefair.lombok") version "8.12"
+    id("com.modrinth.minotaur") version "2.+"
 }
 
-version = "1.0.0"
-group = "com.example"
+val modVersion = "1.0.0"
+group = "io.github.moehreag"
 val loader = "0.16.10"
 val minecraft = "1.21.4"
 val fabric = "0.117.0+1.21.4"
 val parchment = "2025.02.16"
 val modmenu = "13.0.2"
+version = "$modVersion+$minecraft"
 
 base {
-	archivesName = "modid"
+    archivesName = "modcredits"
 }
 
 repositories {
-	maven("https://maven.parchmentmc.org")
-	maven("https://maven.terraformersmc.com")
+    maven("https://maven.parchmentmc.org")
+    maven("https://maven.terraformersmc.com")
 }
 
 loom {
-	mods {
-		create("modid") {
-			sourceSet("main")
-		}
-	}
+    mods {
+        create("modid") {
+            sourceSet("main")
+        }
+    }
 
 }
 
 dependencies {
-	// To change the versions see the gradle.properties file
-	minecraft("com.mojang:minecraft:${minecraft}")
-	mappings(loom.layered {
-		officialMojangMappings {
-			nameSyntheticMembers = true
-		}
-		parchment("org.parchmentmc.data:parchment-${minecraft}:${parchment}@zip")
-	})
-	modImplementation("net.fabricmc:fabric-loader:${loader}")
+    // To change the versions see the gradle.properties file
+    minecraft("com.mojang:minecraft:${minecraft}")
+    mappings(loom.layered {
+        officialMojangMappings {
+            nameSyntheticMembers = true
+        }
+        parchment("org.parchmentmc.data:parchment-${minecraft}:${parchment}@zip")
+    })
+    modImplementation("net.fabricmc:fabric-loader:${loader}")
 
-	// Fabric API. This is technically optional, but you probably want it anyway.
-	modImplementation("net.fabricmc.fabric-api:fabric-api:${fabric}")
+    // Fabric API. This is technically optional, but you probably want it anyway.
+    modImplementation("net.fabricmc.fabric-api:fabric-api:${fabric}")
 
-	modCompileOnly("com.terraformersmc:modmenu:$modmenu")
+    modCompileOnly("com.terraformersmc:modmenu:$modmenu")
 }
 
 tasks.processResources {
-	inputs.property("version", version)
+    inputs.property("version", version)
 
-	filesMatching("fabric.mod.json") {
-		expand("version" to version)
-	}
+    filesMatching("fabric.mod.json") {
+        expand("version" to version)
+    }
 }
 
 tasks.withType(JavaCompile::class).configureEach {
-	options.release = 21
+    options.release = 21
 }
 
 java {
-	// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-	// if it is present.
-	// If you remove this line, sources will not be generated.
-	withSourcesJar()
+    withSourcesJar()
 
-	sourceCompatibility = JavaVersion.VERSION_21
-	targetCompatibility = JavaVersion.VERSION_21
-}
-
-tasks.getByName("jar", Jar::class) {
-	filesMatching("LICENSE") {
-		rename("^(LICENSE.*?)(\\..*)?$", "\$1_${base.archivesName}\$2")
-	}
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }
 
 // configure the maven publication
 publishing {
-	publications {
-		create("mavenJava", MavenPublication::class) {
-			artifactId = base.archivesName.get()
-			from(components["java"])
-		}
-	}
+    publications {
+        create("mavenJava", MavenPublication::class) {
+            artifactId = base.archivesName.get()
+            from(components["java"])
+        }
+    }
 
-	// See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
-	repositories {
-		// Add repositories to publish to here.
-		// Notice: This block does NOT have the same function as the block in the top level.
-		// The repositories here will be used for publishing your artifact, not for
-		// retrieving dependencies.
-	}
+    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
+    repositories {
+        maven {
+            name = "owlMaven"
+            val repository =
+                if (project.version.toString().contains("beta") || project.version.toString().contains("alpha")
+                ) "snapshots" else "releases"
+            url = uri("https://moehreag.duckdns.org/maven/$repository")
+            credentials(PasswordCredentials::class)
+            authentication {
+                create<BasicAuthentication>("basic")
+            }
+        }
+    }
+}
+
+modrinth {
+    token = System.getenv("MODRINTH_TOKEN")
+    projectId = "pR1Fpbbv"
+    versionNumber = "$version"
+    versionType = "release"
+    uploadFile = tasks.remapJar.get()
+    gameVersions.set(listOf(minecraft))
+    loaders.set(listOf("fabric", "quilt"))
+    additionalFiles.set(listOf(tasks.remapSourcesJar))
+    syncBodyFrom = file("README.md").readText()
+    dependencies {
+
+    }
 }
