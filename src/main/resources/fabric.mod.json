@@ -1,0 +1,33 @@
+{
+	"schemaVersion": 1,
+	"id": "moehreag-modcredits",
+	"version": "${version}",
+	"name": "Mod Credits",
+	"description": "A credits section for the installed mods, together with its own small poem.",
+	"authors": [
+		"moehreag"
+	],
+	"contact": {
+		"homepage": "https://modrinth.com/mod/moehreag-modcredits",
+		"sources": "https://github.com/moehreag/modcredits"
+	},
+	"license": "",
+	"icon": "assets/moehreag-modcredits/icon.png",
+	"environment": "client",
+	"entrypoints": {
+		"client": [
+			"io.github.moehreag.modcredits.ModCreditsMod"
+		],
+		"modmenu": [
+			"io.github.moehreag.modcredits.ModMenuImpl"
+		]
+	},
+	"mixins": [
+		"moehreag-modcredits.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.16.10",
+		"minecraft": "~1.21.4",
+		"java": ">=21"
+	}
+}

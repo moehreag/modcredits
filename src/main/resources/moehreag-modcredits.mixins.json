@@ -1,0 +1,11 @@
+{
+	"required": true,
+	"package": "io.github.moehreag.modcredits.mixin",
+	"compatibilityLevel": "JAVA_21",
+	"mixins": [
+		"CreditsAndAttributionScreenMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}
