@@ -113,3 +113,7 @@ dependencies {
 
 ```
 </details>
+
+---
+
+You want to use this mod in a modpack but it doesn't offer the correct options? Head to the issue tracker and let us know!
