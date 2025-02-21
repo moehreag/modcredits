@@ -8,9 +8,11 @@ import net.minecraft.util.FormattedCharSequence;
 
 public class TextEntry implements Entry {
 	private final List<FormattedCharSequence> lines;
+	private final int height;
 
 	public TextEntry(List<FormattedCharSequence> lines) {
 		this.lines = lines;
+		this.height = lines.size() * 12;
 	}
 
 	@Override
@@ -24,6 +26,6 @@ public class TextEntry implements Entry {
 
 	@Override
 	public int getHeight() {
-		return lines.size() * 12;
+		return height;
 	}
 }

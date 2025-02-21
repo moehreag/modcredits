@@ -36,6 +36,7 @@ import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.RandomSource;
 import org.slf4j.Logger;
 
+@SuppressWarnings("DataFlowIssue")
 public class ModCreditsScreen extends Screen {
 
 	private static final ResourceLocation VIGNETTE_LOCATION = ResourceLocation.withDefaultNamespace("textures/misc/credits_vignette.png");
@@ -138,14 +139,10 @@ public class ModCreditsScreen extends Screen {
 
 	@Override
 	public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
-		if (keyCode == InputConstants.KEY_UP) {
-			setDirection(1);
-		} else if (keyCode == InputConstants.KEY_SPACE) {
-			this.speedupActive = false;
+		if (keyCode == InputConstants.KEY_UP || keyCode == InputConstants.KEY_SPACE || keyCode == InputConstants.KEY_DOWN) {
+			speedupActive = false;
 		} else if (keyCode == InputConstants.KEY_LCONTROL || keyCode == InputConstants.KEY_RCONTROL) {
 			this.speedupModifiers.remove(keyCode);
-		} else if (keyCode == InputConstants.KEY_DOWN) {
-			speedupActive = false;
 		}
 
 		this.scrollSpeed = this.calculateScrollSpeed();
@@ -239,7 +236,7 @@ public class ModCreditsScreen extends Screen {
 	@Override
 	public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
 		if (direction == 0 && scroll < totalScrollLength) { // paused
-			scroll -= Math.signum(scrollY)*12;
+			scroll -= Math.signum(scrollY) * 12;
 		}
 		return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
 	}
@@ -252,7 +249,7 @@ public class ModCreditsScreen extends Screen {
 		double shift = -this.scroll;
 		guiGraphics.pose().pushPose();
 		guiGraphics.pose().translate(0.0F, shift, 0.0F);
-		int currentY = this.height*4/5;
+		int currentY = this.height * 4 / 5;
 
 		for (int l = 0; l < this.entries.size(); l++) {
 			var entry = entries.get(l);
@@ -270,7 +267,6 @@ public class ModCreditsScreen extends Screen {
 			} else {
 				currentY += entryHeight;
 			}
-
 		}
 
 		guiGraphics.pose().popPose();

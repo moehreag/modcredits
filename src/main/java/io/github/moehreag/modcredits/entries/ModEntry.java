@@ -17,6 +17,7 @@ public class ModEntry implements Entry {
 	private final ResourceLocation icon;
 	private final boolean rightText;
 	private final int maxLineWidth;
+	private final int height;
 
 	public ModEntry(Component title, List<Line> lines, ResourceLocation icon, boolean rightText) {
 		this.title = title;
@@ -24,6 +25,7 @@ public class ModEntry implements Entry {
 		this.icon = icon;
 		this.rightText = rightText;
 		this.maxLineWidth = lines.stream().map(Line::text).mapToInt(minecraft.font::width).max().orElse(0);
+		this.height = lines.size() * 12 + 12;
 	}
 
 	@Override
@@ -44,7 +46,7 @@ public class ModEntry implements Entry {
 
 	@Override
 	public int getHeight() {
-		return lines.size() * 12 + 12;
+		return height;
 	}
 
 	@Override
