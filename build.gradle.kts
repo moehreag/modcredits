@@ -1,17 +1,19 @@
+@file:Suppress("UnstableApiUsage")
+
 plugins {
     id("fabric-loom") version "1.10-SNAPSHOT"
     id("maven-publish")
-    id("io.freefair.lombok") version "8.12"
+    id("io.freefair.lombok") version "8.13"
     id("com.modrinth.minotaur") version "2.+"
 }
 
 val modVersion = "1.0.0"
 group = "io.github.moehreag"
 val loader = "0.16.10"
-val minecraft = "1.21.4"
-val fabric = "0.117.0+1.21.4"
+val minecraft = "1.21.5"
+val fabric = "0.119.6+1.21.5"
 val parchment = "2025.02.16"
-val modmenu = "13.0.2"
+val modmenu = "14.0.0-rc.2"
 version = "$modVersion+$minecraft"
 
 base {
@@ -39,7 +41,7 @@ dependencies {
         officialMojangMappings {
             nameSyntheticMembers = true
         }
-        parchment("org.parchmentmc.data:parchment-${minecraft}:${parchment}@zip")
+        parchment("org.parchmentmc.data:parchment-1.21.4:${parchment}@zip")
     })
     modImplementation("net.fabricmc:fabric-loader:${loader}")
 

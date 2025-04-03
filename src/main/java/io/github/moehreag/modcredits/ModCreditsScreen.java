@@ -218,7 +218,7 @@ public class ModCreditsScreen extends Screen {
 			try (var in = ModCreditsScreen.class.getResourceAsStream("/" + icon)) {
 				if (in != null) {
 					var rl = ModCreditsMod.id("mod_icon_" + container.getMetadata().getId());
-					Minecraft.getInstance().getTextureManager().register(rl, new DynamicTexture(NativeImage.read(in)));
+					Minecraft.getInstance().getTextureManager().register(rl, new DynamicTexture(rl::toString, NativeImage.read(in)));
 					return rl;
 				}
 			} catch (IOException e) {
