@@ -27,7 +27,7 @@ import net.minecraft.client.GameNarrator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -54,7 +54,7 @@ public class ModCreditsScreen extends Screen {
 
 	private final Screen parent;
 	private final boolean poem;
-	private double scroll;
+	private float scroll;
 	private List<Entry> entries;
 	private int totalScrollLength;
 	private boolean speedupActive;
@@ -236,7 +236,7 @@ public class ModCreditsScreen extends Screen {
 	@Override
 	public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
 		if (direction == 0 && scroll < totalScrollLength) { // paused
-			scroll -= Math.signum(scrollY) * 12;
+			scroll -= (float) (Math.signum(scrollY) * 12);
 		}
 		return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
 	}
@@ -244,11 +244,11 @@ public class ModCreditsScreen extends Screen {
 	@Override
 	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
 		super.render(guiGraphics, mouseX, mouseY, partialTick);
-		guiGraphics.blit(RenderType::vignette, VIGNETTE_LOCATION, 0, 0, 0.0F, 0.0F, this.width, this.height, this.width, this.height);
+		guiGraphics.blit(RenderPipelines.VIGNETTE, VIGNETTE_LOCATION, 0, 0, 0.0F, 0.0F, this.width, this.height, this.width, this.height);
 		this.scroll = Math.max(0.0F, this.scroll + partialTick * this.scrollSpeed);
-		double shift = -this.scroll;
-		guiGraphics.pose().pushPose();
-		guiGraphics.pose().translate(0.0F, shift, 0.0F);
+		float shift = -this.scroll;
+		guiGraphics.pose().pushMatrix();
+		guiGraphics.pose().translate(0.0F, shift);
 		int currentY = this.height * 4 / 5;
 
 		for (int l = 0; l < this.entries.size(); l++) {
@@ -256,9 +256,9 @@ public class ModCreditsScreen extends Screen {
 
 			int entryHeight = entry.getHeight();
 			if (l == this.entries.size() - 1) {
-				double g = currentY + shift - (this.height / 2f - entryHeight / 2f);
+				float g = currentY + shift - (this.height / 2f - entryHeight / 2f);
 				if (g < 0.0F) {
-					guiGraphics.pose().translate(0.0F, -g, 0.0F);
+					guiGraphics.pose().translate(0.0F, -g);
 				}
 			}
 
@@ -269,7 +269,7 @@ public class ModCreditsScreen extends Screen {
 			}
 		}
 
-		guiGraphics.pose().popPose();
+		guiGraphics.pose().popMatrix();
 	}
 
 	private void getModEntries() {

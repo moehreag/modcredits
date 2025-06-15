@@ -9,10 +9,10 @@ plugins {
 
 val modVersion = "1.0.0"
 group = "io.github.moehreag"
-val loader = "0.16.10"
-val minecraft = "1.21.5"
-val fabric = "0.119.6+1.21.5"
-val parchment = "2025.02.16"
+val loader = "0.16.14"
+val minecraft = "1.21.6"
+val fabric = "0.127.0+1.21.6"
+val parchment = "2025.06.15"
 val modmenu = "14.0.0-rc.2"
 version = "$modVersion+$minecraft"
 
@@ -41,7 +41,7 @@ dependencies {
         officialMojangMappings {
             nameSyntheticMembers = true
         }
-        parchment("org.parchmentmc.data:parchment-1.21.4:${parchment}@zip")
+        parchment("org.parchmentmc.data:parchment-1.21.5:${parchment}@zip")
     })
     modImplementation("net.fabricmc:fabric-loader:${loader}")
 

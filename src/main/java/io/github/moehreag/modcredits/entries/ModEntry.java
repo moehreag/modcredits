@@ -5,7 +5,7 @@ import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
@@ -35,7 +35,7 @@ public class ModEntry implements Entry {
 		guiGraphics.drawCenteredString(minecraft.font, title, width / 2, y, -1);
 		y += 12;
 		if (icon != null) {
-			guiGraphics.blit(RenderType::guiTextured, icon, rightText ? width / 2 - 128 : width / 2 + 128 - iconSize, y + 12, 0, 0, iconSize, iconSize, iconSize, iconSize);
+			guiGraphics.blit(RenderPipelines.GUI_TEXTURED, icon, rightText ? width / 2 - 128 : width / 2 + 128 - iconSize, y + 12, 0, 0, iconSize, iconSize, iconSize, iconSize);
 		}
 		for (Line line : lines) {
 			guiGraphics.drawString(minecraft.font, line.text(), rightText ? width / 2 + 128 - maxLineWidth - iconSize + line.offset() : width / 2 - 128 + line.offset(), y, -1);
