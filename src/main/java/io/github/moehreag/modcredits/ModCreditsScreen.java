@@ -27,6 +27,7 @@ import net.minecraft.client.GameNarrator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.network.chat.Component;
@@ -95,7 +96,8 @@ public class ModCreditsScreen extends Screen {
 	}
 
 	@Override
-	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+	public boolean keyPressed(KeyEvent event) {
+		var keyCode = event.key();
 		if (keyCode == InputConstants.KEY_UP) {
 			if (direction > -1) {
 				setDirection(-1);
@@ -129,7 +131,7 @@ public class ModCreditsScreen extends Screen {
 		}
 
 		this.scrollSpeed = this.calculateScrollSpeed();
-		return super.keyPressed(keyCode, scanCode, modifiers);
+		return super.keyPressed(event);
 	}
 
 	private void setDirection(int newDir) {
@@ -138,7 +140,8 @@ public class ModCreditsScreen extends Screen {
 	}
 
 	@Override
-	public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
+	public boolean keyReleased(KeyEvent event) {
+		var keyCode = event.key();
 		if (keyCode == InputConstants.KEY_UP || keyCode == InputConstants.KEY_SPACE || keyCode == InputConstants.KEY_DOWN) {
 			speedupActive = false;
 		} else if (keyCode == InputConstants.KEY_LCONTROL || keyCode == InputConstants.KEY_RCONTROL) {
@@ -146,7 +149,7 @@ public class ModCreditsScreen extends Screen {
 		}
 
 		this.scrollSpeed = this.calculateScrollSpeed();
-		return super.keyReleased(keyCode, scanCode, modifiers);
+		return super.keyReleased(event);
 	}
 
 	@Override
