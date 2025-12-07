@@ -32,22 +32,22 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.RandomSource;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
-@SuppressWarnings("DataFlowIssue")
 public class ModCreditsScreen extends Screen {
 
-	private static final ResourceLocation VIGNETTE_LOCATION = ResourceLocation.withDefaultNamespace("textures/misc/credits_vignette.png");
+	private static final Identifier VIGNETTE_LOCATION = Identifier.withDefaultNamespace("textures/misc/credits_vignette.png");
 	private static final Logger LOGGER = LogUtils.getLogger();
 	private static final Component SECTION_HEADING = Component.literal("============").withStyle(ChatFormatting.WHITE);
 	private static final String OBFUSCATE_TOKEN = "" + ChatFormatting.WHITE + ChatFormatting.OBFUSCATED + ChatFormatting.GREEN + ChatFormatting.AQUA;
 	private static final float SPEEDUP_FACTOR = 5.0F;
 	private static final float SPEEDUP_FACTOR_FAST = 15.0F;
-	private static final ResourceLocation POEM_LOCATION = ModCreditsMod.id("texts/poem.txt");
-	private static final ResourceLocation POSTCREDITS_LOCATION = ModCreditsMod.id("texts/post-credits.txt");
+	private static final Identifier POEM_LOCATION = ModCreditsMod.id("texts/poem.txt");
+	private static final Identifier POSTCREDITS_LOCATION = ModCreditsMod.id("texts/post-credits.txt");
 	public static final MutableComponent MODS_CONTRIBUTORS_HEADER = Component.translatable("mods_contributors_header");
 	public static final MutableComponent MODS_CONTRIBUTOR_HEADER = Component.translatable("mods_contributor_header");
 	public static final MutableComponent MODS_AUTHOR_HEADER = Component.translatable("mods_author_header");
@@ -175,7 +175,7 @@ public class ModCreditsScreen extends Screen {
 		}
 	}
 
-	private void loadPoemFile(ResourceLocation rl) {
+	private void loadPoemFile(Identifier rl) {
 		RandomSource random = RandomSource.create(81345471L);
 		try (var reader = minecraft.getResourceManager().openAsReader(rl)) {
 			List<FormattedCharSequence> entryLines = new ArrayList<>();
@@ -214,7 +214,7 @@ public class ModCreditsScreen extends Screen {
 		entries.add(e);
 	}
 
-	static ResourceLocation getModIcon(ModContainer container) {
+	static Identifier getModIcon(ModContainer container) {
 		var opt = container.getMetadata().getIconPath(16);
 		if (opt.isPresent()) {
 			String icon = opt.get();
@@ -245,7 +245,7 @@ public class ModCreditsScreen extends Screen {
 	}
 
 	@Override
-	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+	public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
 		super.render(guiGraphics, mouseX, mouseY, partialTick);
 		guiGraphics.blit(RenderPipelines.VIGNETTE, VIGNETTE_LOCATION, 0, 0, 0.0F, 0.0F, this.width, this.height, this.width, this.height);
 		this.scroll = Math.max(0.0F, this.scroll + partialTick * this.scrollSpeed);

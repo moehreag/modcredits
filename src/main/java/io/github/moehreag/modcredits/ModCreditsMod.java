@@ -2,7 +2,7 @@ package io.github.moehreag.modcredits;
 
 import lombok.extern.slf4j.Slf4j;
 import net.fabricmc.api.ClientModInitializer;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 @Slf4j
 public class ModCreditsMod implements ClientModInitializer {
@@ -13,7 +13,7 @@ public class ModCreditsMod implements ClientModInitializer {
 
 	}
 
-	public static ResourceLocation id(String location) {
-		return ResourceLocation.fromNamespaceAndPath(MOD_ID, location);
+	public static Identifier id(String location) {
+		return Identifier.fromNamespaceAndPath(MOD_ID, location);
 	}
 }

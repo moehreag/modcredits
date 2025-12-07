@@ -2,7 +2,7 @@ package io.github.moehreag.modcredits;
 
 import io.github.moehreag.modcredits.entries.Entry;
 import net.fabricmc.loader.api.ModContainer;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public interface ModCreditsApi {
 
@@ -21,7 +21,7 @@ public interface ModCreditsApi {
 	 * Get the icon of a mod.
 	 *
 	 * @param mod The mod's ModContainer
-	 * @return A ResourceLocation for the mod's icon
+	 * @return A Identifier for the mod's icon
 	 * @apiNote The backing image will not be released automatically. You have to release/close it in your entry's <code>close</code> method.
 	 * <p>
 	 * <strong>
@@ -29,7 +29,7 @@ public interface ModCreditsApi {
 	 * </strong>
 	 * </p>
 	 */
-	static ResourceLocation getModIcon(ModContainer mod) {
+	static Identifier getModIcon(ModContainer mod) {
 		return ModCreditsScreen.getModIcon(mod);
 	}
 
