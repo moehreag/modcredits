@@ -1,20 +1,18 @@
 package io.github.moehreag.modcredits;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.logging.LogUtils;
-import io.github.moehreag.modcredits.entries.Entry;
-import io.github.moehreag.modcredits.entries.ModEntry;
-import io.github.moehreag.modcredits.entries.TextEntry;
-import io.github.moehreag.modcredits.entries.TitleEntry;
+import io.github.moehreag.modcredits.entries.*;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import net.fabricmc.loader.api.FabricLoader;
@@ -25,13 +23,17 @@ import net.fabricmc.loader.api.metadata.Person;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.GameNarrator;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.ActiveTextCollector;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.texture.DynamicTexture;
+import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.RandomSource;
@@ -64,6 +66,7 @@ public class ModCreditsScreen extends Screen {
 	private final float unmodifiedScrollSpeed;
 	private int direction;
 	private int previousDir;
+	private final ClickTextCollector lastText = new ClickTextCollector();
 
 	public ModCreditsScreen(Screen parent, boolean poem) {
 		super(GameNarrator.NO_TITLE);
@@ -89,7 +92,7 @@ public class ModCreditsScreen extends Screen {
 	public void tick() {
 		this.minecraft.getMusicManager().tick();
 		this.minecraft.getSoundManager().tick(false);
-		float f = (float) (this.totalScrollLength + this.height);
+		float f = (float) (poem ? this.totalScrollLength + this.height : totalScrollLength + height * 3 / 4);
 		if (this.scroll > f) {
 			this.onClose();
 		}
@@ -214,21 +217,21 @@ public class ModCreditsScreen extends Screen {
 		entries.add(e);
 	}
 
-	static Identifier getModIcon(ModContainer container) {
-		var opt = container.getMetadata().getIconPath(16);
-		if (opt.isPresent()) {
-			String icon = opt.get();
-			try (var in = ModCreditsScreen.class.getResourceAsStream("/" + icon)) {
-				if (in != null) {
-					var rl = ModCreditsMod.id("mod_icon_" + container.getMetadata().getId());
-					Minecraft.getInstance().getTextureManager().register(rl, new DynamicTexture(rl::toString, NativeImage.read(in)));
-					return rl;
-				}
-			} catch (IOException e) {
-				LOGGER.warn("Failed to read mod icon of {}!", container.getMetadata().getName(), e);
-			}
+	static Optional<Identifier> getModIcon(ModContainer container) {
+		if (!ModCreditsMod.INSTANCE.showModIcons.get()) {
+			return Optional.empty();
 		}
-		return null;
+		return container.getMetadata().getIconPath(16).flatMap(container::findPath)
+				.map(icon -> {
+					try (var in = Files.newInputStream(icon)) {
+						var rl = ModCreditsMod.id("mod_icon_" + container.getMetadata().getId());
+						Minecraft.getInstance().getTextureManager().register(rl, new DynamicTexture(rl::toString, NativeImage.read(in)));
+						return rl;
+					} catch (IOException e) {
+						LOGGER.warn("Failed to read mod icon of {}!", container.getMetadata().getName(), e);
+					}
+					return null;
+				});
 	}
 
 	private static void addPeople(Collection<Person> people, List<ModEntry.Line> lines) {
@@ -238,10 +241,24 @@ public class ModCreditsScreen extends Screen {
 
 	@Override
 	public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
-		if (direction == 0 && scroll < totalScrollLength) { // paused
+		if (direction == 0) { // paused
 			scroll -= (float) (Math.signum(scrollY) * 12);
 		}
 		return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+	}
+
+	@Override
+	public boolean mouseClicked(@NotNull MouseButtonEvent event, boolean isDoubleClick) {
+		if (event.button() == 0 && ModCreditsMod.INSTANCE.enableModLinks.get()) {
+			ActiveTextCollector.ClickableStyleFinder clickableStyleFinder = new ActiveTextCollector.ClickableStyleFinder(this.font, (int) event.x(), (int) (event.y() + scroll));
+			lastText.run(clickableStyleFinder);
+			Style style = clickableStyleFinder.result();
+			if (style != null && style.getClickEvent() != null) {
+				defaultHandleClickEvent(style.getClickEvent(), minecraft, this);
+				return true;
+			}
+		}
+		return super.mouseClicked(event, isDoubleClick);
 	}
 
 	@Override
@@ -254,11 +271,12 @@ public class ModCreditsScreen extends Screen {
 		guiGraphics.pose().translate(0.0F, shift);
 		int currentY = this.height * 4 / 5;
 
+		lastText.clear();
 		for (int l = 0; l < this.entries.size(); l++) {
 			var entry = entries.get(l);
 
 			int entryHeight = entry.getHeight();
-			if (l == this.entries.size() - 1) {
+			if (poem && l == this.entries.size() - 1) {
 				float g = currentY + shift - (this.height / 2f - entryHeight / 2f);
 				if (g < 0.0F) {
 					guiGraphics.pose().translate(0.0F, -g);
@@ -266,11 +284,12 @@ public class ModCreditsScreen extends Screen {
 			}
 
 			if (currentY + shift + entryHeight + 8.0F > 0.0 && currentY + shift < this.height) {
-				currentY = entry.render(this, guiGraphics, currentY);
+				currentY = entry.render(this, guiGraphics, currentY, lastText);
 			} else {
 				currentY += entryHeight;
 			}
 		}
+		lastText.run(guiGraphics.textRenderer(ModCreditsMod.INSTANCE.enableModLinks.get() ? GuiGraphics.HoveredTextEffects.TOOLTIP_AND_CURSOR : GuiGraphics.HoveredTextEffects.NONE));
 
 		guiGraphics.pose().popMatrix();
 	}
@@ -362,7 +381,48 @@ public class ModCreditsScreen extends Screen {
 		}
 		entryLines.add(ModEntry.Line.EMPTY_LINE);
 
-		return new ModEntry(Component.literal(mod.getMetadata().getName()).withStyle(ChatFormatting.YELLOW),
-				entryLines, getModIcon(mod), rightText);
+		MutableComponent title = Component.literal(mod.getMetadata().getName())
+				.withStyle(ChatFormatting.YELLOW);
+		var contact = getContact(mod);
+		contact.ifPresent(uri -> title.withStyle(s -> s.withClickEvent(new ClickEvent.OpenUrl(uri))));
+		if (ModCreditsMod.INSTANCE.compactMode.get()) {
+			return new CompactModEntry(title, entryLines, getModIcon(mod).orElse(null));
+		}
+		return new ModEntry(title,
+				entryLines, getModIcon(mod).orElse(null), rightText);
+	}
+
+	private static Optional<URI> getContact(ModContainer mod) {
+		var contact = mod.getMetadata().getContact().asMap();
+		for (var key : new String[]{"homepage", "sources", "issues", "discord", "slack", "twitter", "bluesky", "mastodon"}) { // recognized list of contact fields, including some non-officially-defined ones.
+			if (contact.containsKey(key)) {
+				var v = contact.get(key);
+				try {
+					var uri = new URI(v);
+					if ("http".equals(uri.getScheme()) || "https".equals(uri.getScheme())) {
+						return Optional.of(uri);
+					}
+				} catch (URISyntaxException ignored) {
+				}
+			}
+		}
+		return Optional.empty();
+	}
+
+	private static class ClickTextCollector implements Entry.TextCollector {
+		private final List<Consumer<ActiveTextCollector>> list = new ArrayList<>();
+
+		@Override
+		public void accept(Consumer<ActiveTextCollector> consumer) {
+			list.add(consumer);
+		}
+
+		private void run(ActiveTextCollector collector) {
+			list.forEach(consumer -> consumer.accept(collector));
+		}
+
+		public void clear() {
+			list.clear();
+		}
 	}
 }

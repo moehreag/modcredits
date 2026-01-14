@@ -5,6 +5,20 @@
 This mod adds a screen in the style of the vanilla credits/win screen, but for the
 currently installed mods and with expanded functionality as well as a small custom poem.
 
+### Customization options (for modpack devs/users, available starting from version 2.0.0)
+
+The config file is located at `<game dir>/config/moehreag_modcredits.json`.
+
+Currently, the following options are available:
+
+- `enable_poem_in_credits_button`: Whether to display the poem when the mod credits screen is opened
+	from the "Credits & Attribution" screen.
+- `enable_mod_links`: Whether to allow clicking on mod names to go to their homepage/sources/...
+- `show_mod_icons`: Whether to display mod icons in the credits screen. Note that mod authors are able to 
+  override the default behavior and may not respect this option.
+- `compact_mode`: Whether to display the list in a more compact form. This option may also not be respected
+  by mods that implement their own entries (see below).
+
 
 ### Customization options (for mod devs)
 
@@ -72,7 +86,7 @@ public class ModCreditsImpl implements ModCreditsApi {
 
 ### Maven coordinates
 
-This mod can be found on https://moehreag.duckdns.org/maven. Alternatively, the modrinth maven can be used.
+This mod can be found on https://maven.axolotlclient.com/. Alternatively, the modrinth maven can be used.
 
 <details>
 <summary>
@@ -82,7 +96,7 @@ build.gradle.kts
 ```kotlin
 
 repositories {
-    maven("https://moehreag.duckdns.org/maven/releases")
+    maven("https://maven.axolotlclient.com/releases")
 }
 
 dependencies {
@@ -102,7 +116,7 @@ build.gradle
 ```groovy
 
 repositories {
-    maven { url = "https://moehreag.duckdns.org/maven/releases" }
+    maven { url = "https://maven.axolotlclient.com/releases" }
 }
 
 dependencies {

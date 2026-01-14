@@ -29,16 +29,16 @@ public class ModEntry implements Entry {
 	}
 
 	@Override
-	public int render(Screen screen, GuiGraphics guiGraphics, int y) {
+	public int render(Screen screen, GuiGraphics guiGraphics, int y, TextCollector collector) {
 		int width = screen.width;
 		int iconSize = minecraft.font.lineHeight * 5;
-		guiGraphics.drawCenteredString(minecraft.font, title, width / 2, y, -1);
+		collector.accept(width / 2 - screen.getFont().width(title) / 2, y, title);
 		y += 12;
 		if (icon != null) {
 			guiGraphics.blit(RenderPipelines.GUI_TEXTURED, icon, rightText ? width / 2 - 128 : width / 2 + 128 - iconSize, y + 12, 0, 0, iconSize, iconSize, iconSize, iconSize);
 		}
 		for (Line line : lines) {
-			guiGraphics.drawString(minecraft.font, line.text(), rightText ? width / 2 + 128 - maxLineWidth - iconSize + line.offset() : width / 2 - 128 + line.offset(), y, -1);
+			collector.accept(rightText ? width / 2 + 128 - maxLineWidth - iconSize + line.offset() : width / 2 - 128 + line.offset(), y, line.text());
 			y += 12;
 		}
 		return y;

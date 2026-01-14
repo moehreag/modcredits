@@ -1,6 +1,7 @@
 package io.github.moehreag.modcredits.mixin;
 
 import com.llamalad7.mixinextras.sugar.Local;
+import io.github.moehreag.modcredits.ModCreditsMod;
 import io.github.moehreag.modcredits.ModCreditsScreen;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.layouts.LinearLayout;
@@ -22,7 +23,7 @@ public abstract class CreditsAndAttributionScreenMixin extends Screen {
 	@Inject(method = "init", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/layouts/HeaderAndFooterLayout;addToFooter(Lnet/minecraft/client/gui/layouts/LayoutElement;)Lnet/minecraft/client/gui/layouts/LayoutElement;"))
 	private void addModCreditsButton(CallbackInfo ci, @Local LinearLayout layout) {
 		layout.addChild(Button.builder(Component.translatable("mod_credits_button"),
-				btn -> minecraft.setScreen(new ModCreditsScreen(this, true)))
+				btn -> minecraft.setScreen(new ModCreditsScreen(this, ModCreditsMod.INSTANCE.enablePoemInCreditsButton.get())))
 				.width(210).build());
 	}
 }

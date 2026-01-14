@@ -1,33 +1,33 @@
 {
-	"schemaVersion": 1,
-	"id": "moehreag-modcredits",
-	"version": "${version}",
-	"name": "Mod Credits",
-	"description": "A credits section for the installed mods, together with its own small poem.",
-	"authors": [
-		"moehreag"
+  "schemaVersion": 1,
+  "id": "moehreag-modcredits",
+  "version": "${version}",
+  "name": "Mod Credits",
+  "description": "A credits section for the installed mods, together with its own small poem.",
+  "authors": [
+	"moehreag"
+  ],
+  "contact": {
+	"homepage": "https://modrinth.com/mod/moehreag-modcredits",
+	"sources": "https://github.com/moehreag/modcredits"
+  },
+  "license": "LGPL-3.0-or-later",
+  "icon": "assets/moehreag-modcredits/icon.png",
+  "environment": "client",
+  "entrypoints": {
+	"client": [
+	  "io.github.moehreag.modcredits.ModCreditsMod::INSTANCE"
 	],
-	"contact": {
-		"homepage": "https://modrinth.com/mod/moehreag-modcredits",
-		"sources": "https://github.com/moehreag/modcredits"
-	},
-	"license": "LGPL-3.0-or-later",
-	"icon": "assets/moehreag-modcredits/icon.png",
-	"environment": "client",
-	"entrypoints": {
-		"client": [
-			"io.github.moehreag.modcredits.ModCreditsMod"
-		],
-		"modmenu": [
-			"io.github.moehreag.modcredits.ModMenuImpl"
-		]
-	},
-	"mixins": [
-		"moehreag-modcredits.mixins.json"
-	],
-	"depends": {
-		"fabricloader": ">=0.16.10",
-		"minecraft": "~1.21.9",
-		"java": ">=21"
-	}
+	"modmenu": [
+	  "io.github.moehreag.modcredits.ModMenuImpl"
+	]
+  },
+  "mixins": [
+	"moehreag-modcredits.mixins.json"
+  ],
+  "depends": {
+	"fabricloader": ">=0.16.10",
+	"minecraft": "~1.21.9",
+	"java": ">=21"
+  }
 }

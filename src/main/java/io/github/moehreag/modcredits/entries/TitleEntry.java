@@ -16,9 +16,9 @@ public class TitleEntry implements Entry {
 	}
 
 	@Override
-	public int render(Screen screen, GuiGraphics guiGraphics, int y) {
+	public int render(Screen screen, GuiGraphics guiGraphics, int y, TextCollector collector) {
 		for (FormattedCharSequence line : lines) {
-			guiGraphics.drawCenteredString(screen.getFont(), line, screen.width / 2, y, -1);
+			collector.accept(screen.width / 2 - screen.getFont().width(line)/2, y, line);
 			y += 12;
 		}
 		return y;

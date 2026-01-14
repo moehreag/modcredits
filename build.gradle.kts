@@ -7,13 +7,13 @@ plugins {
     id("com.modrinth.minotaur") version "2.+"
 }
 
-val modVersion = "1.0.0"
+val modVersion = "2.0.0-beta.1"
 group = "io.github.moehreag"
-val loader = "0.18.1"
+val loader = "0.18.4"
 val minecraft = "1.21.11"
 val fabric = "0.139.4+1.21.11"
 val parchment = "2025.10.12"
-val modmenu = "17.0.0-alpha.1"
+val modmenu = "17.0.0-beta.2"
 version = "$modVersion+$minecraft"
 
 base {
@@ -21,6 +21,7 @@ base {
 }
 
 repositories {
+    maven("https://maven.axolotlclient.com/releases")
     maven("https://maven.parchmentmc.org")
     maven("https://maven.terraformersmc.com")
 }
@@ -31,7 +32,11 @@ loom {
             sourceSet("main")
         }
     }
-
+    runs {
+        getByName("client") {
+            vmArgs("-XX:+AllowEnhancedClassRedefinition", "-XX:+IgnoreUnrecognizedVMOptions")
+        }
+    }
 }
 
 dependencies {
@@ -49,6 +54,8 @@ dependencies {
     modImplementation("net.fabricmc.fabric-api:fabric-api:${fabric}")
 
     modCompileOnly("com.terraformersmc:modmenu:$modmenu")
+
+    implementation(include("io.github.axolotlclient.AxolotlClient-config:AxolotlClientConfig-common:3.1.12")!!)
 }
 
 tasks.processResources {

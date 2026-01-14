@@ -16,9 +16,9 @@ public class TextEntry implements Entry {
 	}
 
 	@Override
-	public int render(Screen screen, GuiGraphics guiGraphics, int y) {
+	public int render(Screen screen, GuiGraphics guiGraphics, int y, TextCollector collector) {
 		for (FormattedCharSequence line : lines) {
-			guiGraphics.drawString(screen.getFont(), line, screen.width / 2 - 128, y, -1);
+			collector.accept(screen.width / 2 - 128, y, line);
 			y += 12;
 		}
 		return y;

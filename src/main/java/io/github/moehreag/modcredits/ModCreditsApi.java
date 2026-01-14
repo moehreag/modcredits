@@ -1,9 +1,12 @@
 package io.github.moehreag.modcredits;
 
+import java.util.Optional;
+
 import io.github.moehreag.modcredits.entries.Entry;
 import net.fabricmc.loader.api.ModContainer;
 import net.minecraft.resources.Identifier;
 
+@SuppressWarnings("unused")
 public interface ModCreditsApi {
 
 	/**
@@ -21,15 +24,16 @@ public interface ModCreditsApi {
 	 * Get the icon of a mod.
 	 *
 	 * @param mod The mod's ModContainer
-	 * @return A Identifier for the mod's icon
+	 * @return An Identifier for the mod's icon
 	 * @apiNote The backing image will not be released automatically. You have to release/close it in your entry's <code>close</code> method.
+	 * Not all mods may have an icon, or icons may be disabled in this mod's config.
 	 * <p>
 	 * <strong>
 	 * This is a utility method.
 	 * </strong>
 	 * </p>
 	 */
-	static Identifier getModIcon(ModContainer mod) {
+	static Optional<Identifier> getModIcon(ModContainer mod) {
 		return ModCreditsScreen.getModIcon(mod);
 	}
 
