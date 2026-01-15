@@ -7,7 +7,7 @@ plugins {
     id("com.modrinth.minotaur") version "2.+"
 }
 
-val modVersion = "2.0.0-beta.1"
+val modVersion = "2.0.0"
 group = "io.github.moehreag"
 val loader = "0.18.4"
 val minecraft = "1.21.11"
@@ -93,7 +93,7 @@ publishing {
             val repository =
                 if (project.version.toString().contains("beta") || project.version.toString().contains("alpha")
                 ) "snapshots" else "releases"
-            url = uri("https://moehreag.duckdns.org/maven/$repository")
+            url = uri("https://maven.axolotlclient.com/$repository")
             credentials(PasswordCredentials::class)
             authentication {
                 create<BasicAuthentication>("basic")
