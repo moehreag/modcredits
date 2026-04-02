@@ -1,19 +1,18 @@
 @file:Suppress("UnstableApiUsage")
 
 plugins {
-    id("net.fabricmc.fabric-loom-remap") version "1.14.+"
+    id("net.fabricmc.fabric-loom") version "1.15.+"
     id("maven-publish")
-    id("io.freefair.lombok") version "9.0.+"
+    id("io.freefair.lombok") version "9.2.+"
     id("com.modrinth.minotaur") version "2.+"
 }
 
-val modVersion = "2.0.0"
+val modVersion = "2.1.0"
 group = "io.github.moehreag"
-val loader = "0.18.4"
-val minecraft = "1.21.11"
-val fabric = "0.139.4+1.21.11"
-val parchment = "2025.10.12"
-val modmenu = "17.0.0-beta.2"
+val loader = "0.18.6"
+val minecraft = "26.1"
+val fabric = "0.145.2+26.1.1"
+val modmenu = "18.0.0-alpha.8"
 version = "$modVersion+$minecraft"
 
 base {
@@ -42,20 +41,14 @@ loom {
 dependencies {
     // To change the versions see the gradle.properties file
     minecraft("com.mojang:minecraft:${minecraft}")
-    mappings(loom.layered {
-        officialMojangMappings {
-            nameSyntheticMembers = true
-        }
-        parchment("org.parchmentmc.data:parchment-1.21.10:${parchment}@zip")
-    })
-    modImplementation("net.fabricmc:fabric-loader:${loader}")
+    implementation("net.fabricmc:fabric-loader:${loader}")
 
     // Fabric API. This is technically optional, but you probably want it anyway.
-    modImplementation("net.fabricmc.fabric-api:fabric-api:${fabric}")
+    implementation("net.fabricmc.fabric-api:fabric-api:${fabric}")
 
-    modCompileOnly("com.terraformersmc:modmenu:$modmenu")
+    compileOnly("com.terraformersmc:modmenu:$modmenu")
 
-    implementation(include("io.github.axolotlclient.AxolotlClient-config:AxolotlClientConfig-common:3.1.12")!!)
+    implementation(include("io.github.axolotlclient.AxolotlClient-config:AxolotlClientConfig-common:3.1.13")!!)
 }
 
 tasks.processResources {
@@ -67,14 +60,14 @@ tasks.processResources {
 }
 
 tasks.withType(JavaCompile::class).configureEach {
-    options.release = 21
+    options.release = 25
 }
 
 java {
     withSourcesJar()
 
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
 }
 
 // configure the maven publication
@@ -107,10 +100,10 @@ modrinth {
     projectId = "pR1Fpbbv"
     versionNumber = "$version"
     versionType = "release"
-    uploadFile = tasks.remapJar.get()
+    uploadFile = tasks.jar.get()
     gameVersions.set(listOf(minecraft))
     loaders.set(listOf("fabric", "quilt"))
-    additionalFiles.set(listOf(tasks.remapSourcesJar))
+    additionalFiles.set(listOf(tasks.getByName("sourcesJar")))
     syncBodyFrom = file("README.md").readText()
     dependencies {
 

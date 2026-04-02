@@ -24,7 +24,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.GameNarrator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ActiveTextCollector;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
@@ -262,8 +262,8 @@ public class ModCreditsScreen extends Screen {
 	}
 
 	@Override
-	public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-		super.render(guiGraphics, mouseX, mouseY, partialTick);
+	public void extractRenderState(@NotNull GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick) {
+		super.extractRenderState(guiGraphics, mouseX, mouseY, partialTick);
 		guiGraphics.blit(RenderPipelines.VIGNETTE, VIGNETTE_LOCATION, 0, 0, 0.0F, 0.0F, this.width, this.height, this.width, this.height);
 		this.scroll = Math.max(0.0F, this.scroll + partialTick * this.scrollSpeed);
 		float shift = -this.scroll;
@@ -284,12 +284,12 @@ public class ModCreditsScreen extends Screen {
 			}
 
 			if (currentY + shift + entryHeight + 8.0F > 0.0 && currentY + shift < this.height) {
-				currentY = entry.render(this, guiGraphics, currentY, lastText);
+				currentY = entry.extractRenderState(this, guiGraphics, currentY, lastText);
 			} else {
 				currentY += entryHeight;
 			}
 		}
-		lastText.run(guiGraphics.textRenderer(ModCreditsMod.INSTANCE.enableModLinks.get() ? GuiGraphics.HoveredTextEffects.TOOLTIP_AND_CURSOR : GuiGraphics.HoveredTextEffects.NONE));
+		lastText.run(guiGraphics.textRenderer(ModCreditsMod.INSTANCE.enableModLinks.get() ? GuiGraphicsExtractor.HoveredTextEffects.TOOLTIP_AND_CURSOR : GuiGraphicsExtractor.HoveredTextEffects.NONE));
 
 		guiGraphics.pose().popMatrix();
 	}

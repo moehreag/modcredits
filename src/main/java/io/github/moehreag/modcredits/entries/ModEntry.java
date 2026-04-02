@@ -3,7 +3,7 @@ package io.github.moehreag.modcredits.entries;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
@@ -29,7 +29,7 @@ public class ModEntry implements Entry {
 	}
 
 	@Override
-	public int render(Screen screen, GuiGraphics guiGraphics, int y, TextCollector collector) {
+	public int extractRenderState(Screen screen, GuiGraphicsExtractor guiGraphics, int y, TextCollector collector) {
 		int width = screen.width;
 		int iconSize = minecraft.font.lineHeight * 5;
 		collector.accept(width / 2 - screen.getFont().width(title) / 2, y, title);

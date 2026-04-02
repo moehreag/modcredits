@@ -3,13 +3,13 @@ package io.github.moehreag.modcredits.entries;
 import java.util.function.Consumer;
 
 import net.minecraft.client.gui.ActiveTextCollector;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.FormattedCharSequence;
 
 public interface Entry extends AutoCloseable {
-	int render(Screen screen, GuiGraphics guiGraphics, int y, TextCollector collector);
+	int extractRenderState(Screen screen, GuiGraphicsExtractor guiGraphics, int y, TextCollector collector);
 
 	int getHeight();
 

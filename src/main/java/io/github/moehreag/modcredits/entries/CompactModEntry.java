@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
@@ -65,7 +65,7 @@ public class CompactModEntry implements Entry {
 	}
 
 	@Override
-	public int render(Screen screen, GuiGraphics guiGraphics, int y, TextCollector collector) {
+	public int extractRenderState(Screen screen, GuiGraphicsExtractor guiGraphics, int y, TextCollector collector) {
 		int width = screen.width;
 		int iconSize = 20;
 		collector.accept(width / 2 - 150, y, title);
