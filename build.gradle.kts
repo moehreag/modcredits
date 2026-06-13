@@ -1,7 +1,7 @@
 @file:Suppress("UnstableApiUsage")
 
 plugins {
-    id("net.fabricmc.fabric-loom") version "1.15.+"
+    id("net.fabricmc.fabric-loom") version "1.17+"
     id("maven-publish")
     id("io.freefair.lombok") version "9.2.+"
     id("com.modrinth.minotaur") version "2.+"
@@ -9,9 +9,9 @@ plugins {
 
 val modVersion = "2.1.0"
 group = "io.github.moehreag"
-val loader = "0.18.6"
-val minecraft = "26.1"
-val fabric = "0.145.2+26.1.1"
+val loader = "0.19.3"
+val minecraft = "26.2-rc-2"
+val fabric = "0.151.0+26.2"
 val modmenu = "18.0.0-alpha.8"
 version = "$modVersion+$minecraft"
 
@@ -33,7 +33,7 @@ loom {
     }
     runs {
         getByName("client") {
-            vmArgs("-XX:+AllowEnhancedClassRedefinition", "-XX:+IgnoreUnrecognizedVMOptions")
+            jvmArguments.addAll("-XX:+AllowEnhancedClassRedefinition", "-XX:+IgnoreUnrecognizedVMOptions")
         }
     }
 }
@@ -48,7 +48,7 @@ dependencies {
 
     compileOnly("com.terraformersmc:modmenu:$modmenu")
 
-    implementation(include("io.github.axolotlclient.AxolotlClient-config:AxolotlClientConfig-common:3.1.13")!!)
+    implementation(include("io.github.axolotlclient.AxolotlClient-config:AxolotlClientConfig-common:3.1.14")!!)
 }
 
 tasks.processResources {

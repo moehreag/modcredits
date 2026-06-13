@@ -21,9 +21,9 @@ public abstract class CreditsAndAttributionScreenMixin extends Screen {
 	}
 
 	@Inject(method = "init", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/layouts/HeaderAndFooterLayout;addToFooter(Lnet/minecraft/client/gui/layouts/LayoutElement;)Lnet/minecraft/client/gui/layouts/LayoutElement;"))
-	private void addModCreditsButton(CallbackInfo ci, @Local LinearLayout layout) {
+	private void addModCreditsButton(CallbackInfo ci, @Local(name = "content") LinearLayout layout) {
 		layout.addChild(Button.builder(Component.translatable("mod_credits_button"),
-				btn -> minecraft.setScreen(new ModCreditsScreen(this, ModCreditsMod.INSTANCE.enablePoemInCreditsButton.get())))
+				btn -> minecraft.gui.setScreen(new ModCreditsScreen(this, ModCreditsMod.INSTANCE.enablePoemInCreditsButton.get())))
 				.width(210).build());
 	}
 }

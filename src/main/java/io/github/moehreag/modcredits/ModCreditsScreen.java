@@ -158,7 +158,7 @@ public class ModCreditsScreen extends Screen {
 	@Override
 	public void onClose() {
 		entries.forEach(Entry::close);
-		minecraft.setScreen(parent);
+		minecraft.gui.setScreen(parent);
 	}
 
 	@Override
