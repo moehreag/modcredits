@@ -7,7 +7,7 @@ plugins {
     id("com.modrinth.minotaur") version "2.+"
 }
 
-val modVersion = "2.1.0"
+val modVersion = "3.0.0"
 group = "io.github.moehreag"
 val loader = "0.19.5"
 val minecraft = "26.3"
