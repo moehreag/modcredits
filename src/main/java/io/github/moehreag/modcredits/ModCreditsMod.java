@@ -9,10 +9,13 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.resources.Identifier;
 
+import java.io.IOException;
+import java.nio.file.Files;
+
 @Slf4j
 public class ModCreditsMod implements ClientModInitializer {
 	public static final ModCreditsMod INSTANCE = new ModCreditsMod();
-	public static final String MOD_ID = "moehreag-modcredits";
+	public static final String MOD_ID = "modcredits";
 	private final OptionCategory category = OptionCategory.create(MOD_ID);
 	public final BooleanOption enablePoemInCreditsButton = new BooleanOption("enable_poem_in_credits_button", false);
 	public final BooleanOption enableModLinks = new BooleanOption("enable_mod_links", true);
@@ -23,6 +26,15 @@ public class ModCreditsMod implements ClientModInitializer {
 	public void onInitializeClient() {
 		category.add(enablePoemInCreditsButton, enableModLinks, showModIcons, compactMode);
 
+		var legacyConfigPath = FabricLoader.getInstance().getConfigDir().resolve("moehreag_modcredits.json");
+		var configPath = FabricLoader.getInstance().getConfigDir().resolve(MOD_ID.replace("-", "_") + ".json");
+		if (Files.exists(legacyConfigPath) && !Files.exists(configPath)) {
+            try {
+                Files.move(legacyConfigPath, configPath);
+            } catch (IOException e) {
+                log.warn("Failed to migrate config from old location:", e);
+            }
+        }
 		var configManger = new JsonConfigManager(FabricLoader.getInstance().getConfigDir().resolve(MOD_ID.replace("-", "_") + ".json"), category);
 		AxolotlClientConfig.getInstance().register(configManger);
 

@@ -1,7 +1,7 @@
 @file:Suppress("UnstableApiUsage")
 
 plugins {
-    id("net.fabricmc.fabric-loom") version "1.17+"
+    id("net.fabricmc.fabric-loom") version "1.18+"
     id("maven-publish")
     id("io.freefair.lombok") version "9.2.+"
     id("com.modrinth.minotaur") version "2.+"
@@ -9,10 +9,10 @@ plugins {
 
 val modVersion = "2.1.0"
 group = "io.github.moehreag"
-val loader = "0.19.3"
-val minecraft = "26.2-rc-2"
-val fabric = "0.151.0+26.2"
-val modmenu = "18.0.0-alpha.8"
+val loader = "0.19.5"
+val minecraft = "26.3"
+val fabric = "0.161.0+26.3"
+val modmenu = "20.0.3"
 version = "$modVersion+$minecraft"
 
 base {
@@ -48,7 +48,7 @@ dependencies {
 
     compileOnly("com.terraformersmc:modmenu:$modmenu")
 
-    implementation(include("io.github.axolotlclient.AxolotlClient-config:AxolotlClientConfig-common:3.1.14")!!)
+    implementation(include("io.github.axolotlclient.AxolotlClient-config:AxolotlClientConfig-common:3.1.16")!!)
 }
 
 tasks.processResources {
@@ -105,6 +105,7 @@ modrinth {
     loaders.set(listOf("fabric", "quilt"))
     additionalFiles.set(listOf(tasks.getByName("sourcesJar")))
     syncBodyFrom = file("README.md").readText()
+    environment = "client_only"
     dependencies {
 
     }
